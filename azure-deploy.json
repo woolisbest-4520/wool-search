@@ -1,0 +1,22 @@
+{
+  "type": "Microsoft.ContainerInstance/containerGroups",
+  "apiVersion": "2021-09-01",
+  "name": "wool-search",
+  "location": "japaneast",
+  "properties": {
+    "containers": [
+      {
+        "name": "wool-search",
+        "properties": {
+          "image": "python:3.11-slim",
+          "ports": [{ "port": 8000 }],
+          "resources": {
+            "requests": { "cpu": 1.0, "memoryInGB": 1.5 }
+          }
+        }
+      }
+    ],
+    "osType": "Linux",
+    "ipAddress": { "type": "Public", "ports": [{ "port": 8000 }] }
+  }
+}
