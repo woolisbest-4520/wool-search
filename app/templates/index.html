@@ -3,34 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Search Engine</title>
+    <title>Wool-Search | {{ query if query else 'Privacy First' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <div class="max-w-3xl mx-auto pt-10 px-4">
-        <h1 class="text-3xl font-bold text-blue-600 mb-8 text-center">MySearch</h1>
-        <form action="/search" method="post" class="mb-10">
-            <div class="flex gap-2">
-                <input type="text" name="q" value="{{ query if query else '' }}" 
-                       class="flex-1 p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                       placeholder="検索ワードを入力..." required>
-                <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">検索</button>
-            </div>
-        </form>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-black text-indigo-600 mb-6">🐑 Wool-Search</h1>
+            <form action="/search" method="post" class="relative max-w-2xl mx-auto">
+                <input type="text" name="q" value="{{ query }}" 
+                       class="w-full p-4 pl-6 pr-24 rounded-full border border-slate-200 shadow-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+                       placeholder="キーワード、または !yt !gh で検索..." required autofocus>
+                <button type="submit" class="absolute right-2 top-2 bottom-2 px-6 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition font-bold">
+                    検索
+                </button>
+            </form>
+        </header>
 
-        {% if results %}
-            <div class="space-y-8">
-                {% for r in results %}
-                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                    <a href="{{ r.href }}" class="text-sm text-green-700 truncate block mb-1">{{ r.href }}</a>
-                    <a href="{{ r.href }}" class="text-xl text-blue-800 hover:underline font-semibold block mb-2">{{ r.title }}</a>
-                    <p class="text-gray-600 text-sm leading-relaxed">{{ r.body }}</p>
-                </div>
-                {% endfor %}
+        {% if error %}
+            <div class="bg-red-50 text-red-600 p-4 rounded-lg mb-8 border border-red-100 text-center">
+                {{ error }}
             </div>
-        {% elif query %}
-            <p class="text-center text-gray-500">結果が見つかりませんでした。</p>
         {% endif %}
+
+        <main class="space-y-6">
+            {% if results %}
+                {% for r in results %}
+                <article class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
+                    <header>
+                        <cite class="text-xs text-emerald-700 not-italic block mb-1 truncate">{{ r.href }}</cite>
+                        <h2 class="text-xl font-bold text-indigo-800 hover:underline">
+                            <a href="{{ r.href }}" target="_blank" rel="noopener noreferrer">{{ r.title }}</a>
+                        </h2>
+                    </header>
+                    <p class="mt-2 text-slate-600 text-sm leading-relaxed">{{ r.body }}</p>
+                </article>
+                {% endfor %}
+            {% elif query and not error %}
+                <div class="text-center py-20">
+                    <p class="text-slate-400 text-lg">結果が見つかりませんでした。キーワードを変えてみてください。</p>
+                </div>
+            {% endif %}
+        </main>
+
+        <footer class="mt-20 pt-8 border-t border-slate-200 text-center text-slate-400 text-sm">
+            <p>&copy; 2026 woolisbest-4520. Powered by DuckDuckGo.</p>
+        </footer>
     </div>
 </body>
 </html>
