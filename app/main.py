@@ -6,44 +6,54 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from duckduckgo_search import DDGS
 
 app = FastAPI()
+
+# テンプレート設定
 templates = Jinja2Templates(directory="app/templates")
 
+# Bangs（ショートカット）の定義
 BANGS = {
     "!yt": "https://www.youtube.com/results?search_query=",
     "!gh": "https://github.com/search?q=",
+    "!n": "https://www.google.com/search?tbm=nws&q=",
+    "!maps": "https://www.google.com/maps/search/",
+    "!wiki": "https://ja.wikipedia.org/wiki/",
 }
+
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request, "results": None, "query": ""})
 
 @app.post("/search", response_class=HTMLResponse)
 async def search(request: Request, q: str = Form(...)):
-    # 1. Bangs処理
+    # 1. Bangs（ショートカット）の処理
     for bang, target_url in BANGS.items():
         if q.startswith(f"{bang} "):
             search_term = q[len(bang)+1:].strip()
             return RedirectResponse(url=f"{target_url}{urllib.parse.quote(search_term)}")
 
-    # 2. 検索実行
+    # 2. DuckDuckGo 検索の実行
     results = []
     error_msg = None
     try:
         with DDGS() as ddgs:
-            # 最新の ddgs.text は list() で囲うか、ループで回す必要があります
-            search_results = ddgs.text(
-                q, 
-                region="jp-jp", 
-                safesearch="off", 
-                max_results=10
-            )
-            # ジェネレータからリストに変換
-            results = [r for r in search_results]
+            # 日本地域(jp-jp), セーフサーチオフ
+            response = ddgs.text(q, region="jp-jp", safesearch="off", max_results=15)
+            # ジェネレータをリストに変換（重要）
+            results = [r for r in response]
             
-            # デバッグ用：サーバーのコンソールに件数を表示
-            print(f"Query: {q}, Found: {len(results)} results")
-            
+            if not results:
+                print(f"No results found for query: {q}")
     except Exception as e:
-        error_msg = f"Search Error: {str(e)}"
+        error_msg = f"検索エラーが発生しました: {str(e)}"
         print(error_msg)
     
     return templates.TemplateResponse(
         "index.html", 
         {"request": request, "results": results, "query": q, "error": error_msg}
     )
+
+if __name__ == "__main__":
+    import uvicorn
+    # PaaS(Render/Koyeb等)のポート割り当てに対応
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
