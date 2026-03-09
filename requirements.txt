@@ -1,5 +1,5 @@
 fastapi
 uvicorn
-duckduckgo_search
+duckduckgo_search>=5.3.0
 jinja2
 python-multipart
