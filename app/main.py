@@ -33,7 +33,7 @@ async def search(request: Request, q: str = Form(...)):
     # 2. 自動リトライ付き検索ロジック
     results = []
     error_msg = None
-    max_retries = 3  # 最大3回リトライ
+    max_retries = 5  # 最大3回リトライ
 
     for attempt in range(max_retries):
         try:
