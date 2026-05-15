@@ -9,14 +9,6 @@ from duckduckgo_search import DDGS
 app = FastAPI()
 templates = Jinja2Templates(directory="app/templates")
 
-# Bangsの設定
-BANGS = {
-    "!yt": "https://www.youtube.com/results?search_query=",
-    "!gh": "https://github.com/search?q=",
-    "!n": "https://www.google.com/search?tbm=nws&q=",
-    "!maps": "https://www.google.com/maps/search/",
-    "!wiki": "https://ja.wikipedia.org/wiki/",
-}
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
